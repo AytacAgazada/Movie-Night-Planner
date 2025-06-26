@@ -4,7 +4,7 @@ import com.example.filmplanner.dto.CommentDto;
 import com.example.filmplanner.dto.PollRequest;
 import com.example.filmplanner.entity.Film;
 import com.example.filmplanner.entity.Poll;
-import com.example.filmplanner.enums.Genre; // Genre enum-unuzu import edin
+import com.example.filmplanner.enums.Genre;
 import com.example.filmplanner.repository.FilmRepository;
 import com.example.filmplanner.repository.PollRepository;
 import com.example.filmplanner.service.CommentService;
