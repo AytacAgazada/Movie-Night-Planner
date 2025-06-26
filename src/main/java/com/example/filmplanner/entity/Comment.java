@@ -1,7 +1,10 @@
-package com.example.filmplanner.entity;
+ package com.example.filmplanner.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -17,14 +20,18 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username;
+    @Column(length = 500, nullable = false)
+    private String text;
 
-    @Column(length = 1000)
-    private String message;
-
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
+    private String userIdentifier;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "film_id")
+    @JoinColumn(name = "film_id", nullable = false)
     private Film film;
+
+
 }

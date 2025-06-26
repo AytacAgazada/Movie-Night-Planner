@@ -1,12 +1,14 @@
-package com.example.filmplanner.enums;
+ package com.example.filmplanner.enums;
 
 public enum Genre {
     ACTION,
-    COMEDY,
     DRAMA,
+    COMEDY,
     HORROR,
-    SCIFI,
+    SCI_FI,
+    FANTASY,
+    THRILLER,
     ROMANCE,
-    ANIMATION,
-    DOCUMENTARY
+    DOCUMENTARY,
+    ANIMATION
 }

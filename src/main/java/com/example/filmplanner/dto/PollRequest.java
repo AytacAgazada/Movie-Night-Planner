@@ -1,7 +1,8 @@
-package com.example.filmplanner.dto;
+ package com.example.filmplanner.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+
 
 @Getter
 @Setter
@@ -9,6 +10,6 @@ import lombok.*;
 @AllArgsConstructor
 public class PollRequest {
 
-    @NotBlank(message = "Poll title must not be empty")
+    @NotBlank(message = "Poll title is mandatory")
     private String title;
 }

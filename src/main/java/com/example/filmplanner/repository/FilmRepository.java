@@ -14,4 +14,5 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
 
     List<Film> findByGenre(Genre genre);
 
+    List<Film> findByPollIdAndGenre(Long pollId, Genre genre);
 }

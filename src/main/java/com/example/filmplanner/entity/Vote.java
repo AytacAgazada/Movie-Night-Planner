@@ -1,10 +1,15 @@
-package com.example.filmplanner.entity;
+ package com.example.filmplanner.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "votes", uniqueConstraints = @UniqueConstraint(columnNames = {"voterName", "film_id"}))
+@Table(name = "votes", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"poll_id", "user_identifier"})
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,9 +20,15 @@ public class Vote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String voterName;
+    @Column(name = "user_identifier", nullable = false)
+    private String userIdentifier;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "film_id")
+    @JoinColumn(name = "film_id", nullable = false)
     private Film film;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "poll_id", nullable = false)
+    private Poll poll;
+
 }

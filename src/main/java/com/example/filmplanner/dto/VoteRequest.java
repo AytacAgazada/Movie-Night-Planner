@@ -10,8 +10,8 @@ import lombok.*;
 @AllArgsConstructor
 public class VoteRequest {
 
-    @NotBlank(message = "Voter name must not be empty")
-    private String voterName;
+    @NotBlank(message = "User identifier is required")
+    private String userIdentifier;
 
     @NotNull(message = "Film ID must be provided")
     private Long filmId;
