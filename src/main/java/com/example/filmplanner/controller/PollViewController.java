@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import java.util.Collections;
 
 @Controller
-@RequestMapping("/polls") // /polls prefixini saxlayırıq
+@RequestMapping("/polls")
 public class PollViewController {
 
     private final PollRepository pollRepository;
@@ -39,37 +39,19 @@ public class PollViewController {
         this.commentService = commentService;
     }
 
-    // --- Əsas Giriş Səhifəsi ---
-    /**
-     * Tətbiqin başlanğıc səhifəsini göstərir (iki seçim ilə).
-     * Məsələn: http://localhost:8282/polls/
-     * @return `start-page.html` şablonunun adı
-     */
     @GetMapping("/") // Əsas giriş yolu
     public String showStartPage() {
         return "start-page";
     }
 
-    // --- Yeni Səsvermə Yaratma Metodları ---
-    /**
-     * Yeni səsvermə yaratmaq üçün formu göstərir.
-     * Bu, `start-page.html`-dən keçid edilən səhifədir.
-     * Məsələn: http://localhost:8282/polls/new
-     * @param model Görünüşə məlumat ötürmək üçün
-     * @return `new-poll-form.html` şablonunun adı
-     */
-    @GetMapping("/new") // Yeni səsvermə forması üçün yeni yol
+
+    @GetMapping("/new") // Yeni səsvermə forması üçün
     public String showCreateNewPollForm(Model model) {
         model.addAttribute("pollRequest", new PollRequest());
-        return "new-poll-form"; // Yeni fayl adı
+        return "new-poll-form";
     }
 
-    /**
-     * Səsvermə yaratma formundan göndərilən məlumatları qəbul edir və yeni səsvermə yaradır.
-     * @param pollRequest Formdan gələn səsvermə məlumatları (DTO)
-     * @param bindingResult Validasiya nəticələrini saxlamaq üçün
-     * @return Uğurlu olduqda yeni səsvermənin unikal linkinə yönləndirir, xəta olduqda yenidən formu göstərir.
-     */
+
     @PostMapping("/create") // Bu yol dəyişmir, formdan gəlir
     public String createPoll(@Valid @ModelAttribute("pollRequest") PollRequest pollRequest, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -121,7 +103,6 @@ public class PollViewController {
                 model.addAttribute("recommendedFilms", recommendedFilms.stream().limit(5).collect(Collectors.toList()));
             }
         }
-        // --- Tövsiyələr hissəsi Bitdi ---
 
         return "poll";
     }
@@ -189,13 +170,7 @@ public class PollViewController {
     }
 
     // --- Film Tövsiyələri Səhifəsi ---
-    /**
-     * Janra görə film tövsiyələrini göstərən səhifə.
-     * Məsələn: http://localhost:8282/polls/recommendations?genre=ACTION
-     * @param genre Tövsiyə ediləcək janr (istəyə bağlı, boşdursa bütün janrlardan qarışıq göstərilə bilər)
-     * @param model Görünüşə məlumat ötürmək üçün
-     * @return `recommendations.html` şablonunun adı
-     */
+
     @GetMapping("/recommendations")
     public String showRecommendations(@RequestParam(required = false) Genre genre, Model model) {
         List<Film> films;
@@ -209,7 +184,7 @@ public class PollViewController {
 
         Collections.shuffle(films); // Filmləri qarışdırırıq
         model.addAttribute("recommendedFilms", films.stream().limit(20).collect(Collectors.toList())); // İlk 20-ni göstəririk
-        model.addAttribute("genres", Genre.values()); // Bütün janrları dropdown üçün əlavə edirik
+        model.addAttribute("genres", Genre.values());
 
         return "recommendations";
     }
