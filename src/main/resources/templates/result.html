@@ -3,42 +3,154 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title th:text="${poll.title} + ' Results'"></title> <!-- 'poll.name' changed to 'poll.title' -->
-  <!-- Tailwind CSS CDN -->
+  <title th:text="${poll.title} + ' Results'"></title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #f3f4f6;
+      background-color: #f8fafc;
+      overflow-x: hidden; /* Prevent horizontal scroll */
+    }
+    .fireworks-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 999; /* Below main content, above background */
+    }
+    .firework {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #ff0;
+      border-radius: 50%;
+      opacity: 0;
+      animation: explode 0.8s forwards;
+      filter: blur(1px);
+    }
+
+    @keyframes explode {
+      0% {
+        transform: scale(0);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+    }
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background-color: white;
+      border-radius: 50%;
+      opacity: 0;
+      animation: scatter 0.8s forwards;
+    }
+
+    @keyframes scatter {
+      0% {
+        transform: scale(0) translate(0, 0);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1) translate(var(--x), var(--y));
+        opacity: 0;
+      }
     }
   </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
-<div class="bg-white p-8 rounded-lg shadow-md w-full max-w-xl">
-  <h1 class="text-4xl font-extrabold text-gray-900 mb-6 text-center" th:text="${poll.title} + ' Results'"></h1> <!-- 'poll.name' changed to 'poll.title' -->
 
-  <div th:if="${winner != null}" class="bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 p-6 rounded-lg shadow-lg mb-8 text-center transform hover:scale-105 transition-transform duration-300">
-    <h2 class="text-3xl font-bold text-gray-800 mb-2">Winner:</h2>
-    <p class="text-4xl font-extrabold text-gray-900" th:text="${winner.title}"></p>
-    <p class="text-xl text-gray-700 mt-2"><span class="font-bold" th:text="${winner.votes}"></span> votes</p>
+<div id="fireworks" class="fireworks-container"></div>
+
+<div class="bg-white p-10 rounded-xl shadow-2xl w-full max-w-xl animate-fade-in">
+  <h1 class="text-5xl font-extrabold text-gray-900 mb-8 text-center leading-tight" th:text="${poll.title} + ' Results 📊'"></h1>
+
+  <div th:if="${winner != null}" id="winnerSection" class="bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 p-8 rounded-2xl shadow-xl mb-10 text-center transform transition-transform duration-500 ease-in-out hover:scale-105 animate-pop-in">
+    <h2 class="text-3xl font-bold text-amber-900 mb-3 drop-shadow">🌟 We Have a Winner! Congrats! 🏆🎉</h2>
+    <p class="text-5xl font-extrabold text-amber-950 mb-3" th:text="${winner.title}"></p>
+    <p class="text-2xl text-amber-800 mt-2"><span class="font-bold" th:text="${winner.votes}"></span> votes! 💪</p>
   </div>
 
-  <div th:if="${winner == null}" class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-8" role="alert">
-    <p class="font-bold">No Winner Yet</p>
-    <p>It seems no films have been voted on, or no films have been added to this poll.</p>
+  <div th:if="${winner == null}" class="bg-blue-100 border-l-8 border-blue-500 text-blue-800 p-6 mb-10 rounded-lg shadow-md animate-fade-in" role="alert">
+    <p class="font-bold text-xl mb-2">No Winner Yet! 🤔</p>
+    <p class="text-lg">It seems no films have been voted on, or no films have been added to this poll. Be the first to add or vote! 🚀</p>
   </div>
 
-  <div class="mt-8 text-center">
+  <div class="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
     <a th:href="@{|/polls/${poll.id}|}"
-       class="inline-block px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg transition duration-200 ease-in-out transform hover:scale-105">
-      Back to Poll
+       class="inline-flex items-center justify-center px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 active:scale-95">
+      Back to Poll ↩️
     </a>
     <a th:href="@{/polls/create}"
-       class="inline-block px-6 py-3 bg-gray-600 text-white font-medium rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 shadow-lg transition duration-200 ease-in-out transform hover:scale-105 ml-4">
-      Create New Poll
+       class="inline-flex items-center justify-center px-8 py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 active:scale-95">
+      Create New Poll ➕
     </a>
   </div>
 </div>
+
+<script th:if="${winner != null}">
+  // Fireworks logic
+  const fireworksContainer = document.getElementById('fireworks');
+  const colors = ['#ff0', '#0f0', '#00f', '#f0f', '#0ff', '#f00', '#fff'];
+
+  function createParticle(x, y, color) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    particle.style.backgroundColor = color;
+
+    const angle = Math.random() * Math.PI * 2;
+    const distance = Math.random() * 50 + 20; // 20 to 70px
+    particle.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
+    particle.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
+
+    fireworksContainer.appendChild(particle);
+    particle.addEventListener('animationend', () => particle.remove());
+  }
+
+  function createFirework(x, y) {
+    const firework = document.createElement('div');
+    firework.className = 'firework';
+    firework.style.left = `${x}px`;
+    firework.style.top = `${y}px`;
+    firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    fireworksContainer.appendChild(firework);
+
+    firework.addEventListener('animationend', () => {
+      firework.remove();
+      const numParticles = 20 + Math.floor(Math.random() * 20); // 20-40 particles
+      for (let i = 0; i < numParticles; i++) {
+        createParticle(x, y, firework.style.backgroundColor);
+      }
+    });
+  }
+
+  function launchFireworks() {
+    if (document.getElementById('winnerSection')) {
+      const numFireworks = 5 + Math.floor(Math.random() * 5); // 5-10 fireworks
+      for (let i = 0; i < numFireworks; i++) {
+        const x = Math.random() * window.innerWidth;
+        const y = Math.random() * window.innerHeight * 0.7; // Upper 70% of screen
+        setTimeout(() => createFirework(x, y), i * 300); // Stagger them
+      }
+      // Launch more after a delay for a continuous effect
+      setTimeout(launchFireworks, 3000); // Re-launch every 3 seconds
+    }
+  }
+
+  window.addEventListener('load', () => {
+    // Only launch fireworks if a winner exists
+    if (document.getElementById('winnerSection')) {
+      launchFireworks();
+    }
+  });
+</script>
 </body>
 </html>
