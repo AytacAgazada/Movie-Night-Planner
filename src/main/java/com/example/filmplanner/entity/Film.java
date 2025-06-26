@@ -33,8 +33,8 @@ public class Film {
     @JoinColumn(name = "poll_id", nullable = false)
     private Poll poll;
 
-    @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Vote> votes = new ArrayList<>();
+    @Column(nullable = false)
+    private int votes = 0;
 
     @OneToMany(mappedBy = "film", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
