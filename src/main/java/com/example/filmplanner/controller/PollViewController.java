@@ -4,6 +4,7 @@ import com.example.filmplanner.dto.CommentDto;
 import com.example.filmplanner.dto.PollRequest;
 import com.example.filmplanner.entity.Film;
 import com.example.filmplanner.entity.Poll;
+import com.example.filmplanner.enums.Genre; // Genre enum-unuzu import edin
 import com.example.filmplanner.repository.FilmRepository;
 import com.example.filmplanner.repository.PollRepository;
 import com.example.filmplanner.service.CommentService;
@@ -19,9 +20,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Controller
-@RequestMapping("/polls")
+@RequestMapping("/polls") // /polls prefixini saxlayırıq
 public class PollViewController {
 
     private final PollRepository pollRepository;
@@ -36,17 +39,41 @@ public class PollViewController {
         this.commentService = commentService;
     }
 
-    // --- Səsvermə Yaratma Metodları ---
-    @GetMapping("/create")
-    public String showCreateForm(Model model) {
-        model.addAttribute("pollRequest", new PollRequest());
-        return "create-poll";
+    // --- Əsas Giriş Səhifəsi ---
+    /**
+     * Tətbiqin başlanğıc səhifəsini göstərir (iki seçim ilə).
+     * Məsələn: http://localhost:8282/polls/
+     * @return `start-page.html` şablonunun adı
+     */
+    @GetMapping("/") // Əsas giriş yolu
+    public String showStartPage() {
+        return "start-page";
     }
 
-    @PostMapping("/create")
+    // --- Yeni Səsvermə Yaratma Metodları ---
+    /**
+     * Yeni səsvermə yaratmaq üçün formu göstərir.
+     * Bu, `start-page.html`-dən keçid edilən səhifədir.
+     * Məsələn: http://localhost:8282/polls/new
+     * @param model Görünüşə məlumat ötürmək üçün
+     * @return `new-poll-form.html` şablonunun adı
+     */
+    @GetMapping("/new") // Yeni səsvermə forması üçün yeni yol
+    public String showCreateNewPollForm(Model model) {
+        model.addAttribute("pollRequest", new PollRequest());
+        return "new-poll-form"; // Yeni fayl adı
+    }
+
+    /**
+     * Səsvermə yaratma formundan göndərilən məlumatları qəbul edir və yeni səsvermə yaradır.
+     * @param pollRequest Formdan gələn səsvermə məlumatları (DTO)
+     * @param bindingResult Validasiya nəticələrini saxlamaq üçün
+     * @return Uğurlu olduqda yeni səsvermənin unikal linkinə yönləndirir, xəta olduqda yenidən formu göstərir.
+     */
+    @PostMapping("/create") // Bu yol dəyişmir, formdan gəlir
     public String createPoll(@Valid @ModelAttribute("pollRequest") PollRequest pollRequest, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "create-poll";
+            return "new-poll-form"; // Xəta olarsa yeni form səhifəsinə qayıt
         }
         Poll poll = pollService.createPoll(pollRequest);
         return "redirect:/polls/" + poll.getUniqueLink();
@@ -57,22 +84,44 @@ public class PollViewController {
     public String viewPoll(@PathVariable String uniqueLink, Model model, HttpServletRequest request) {
         Optional<Poll> pollOpt = pollRepository.findByUniqueLink(uniqueLink);
         if (pollOpt.isEmpty()) {
-            return "redirect:/polls/create";
+            return "redirect:/polls/"; // Tapılmazsa əsas səhifəyə yönləndiririk
         }
         Poll poll = pollOpt.get();
         model.addAttribute("poll", poll);
 
         List<Film> films = filmRepository.findByPollId(poll.getId());
-        films.forEach(film -> film.getComments().size()); // Şərhləri yükləmək üçün lazy loading-i tetikləyirik
+        films.forEach(film -> {
+            if (film.getComments() != null) { // NullPointer xətasının qarşısını almaq üçün əlavə yoxlama
+                film.getComments().size(); // Şərhləri yükləmək üçün lazy loading-i tetikləyirik
+            }
+        });
         films.sort(Comparator.comparing(film -> film.getTitle() != null ? film.getTitle() : ""));
         model.addAttribute("films", films);
 
         model.addAttribute("newFilm", new Film());
         model.addAttribute("newComment", new CommentDto());
 
-        // BURADA DƏYİŞİKLİK: HttpServletRequest-dən URL-i götürüb modelə əlavə edirik
         String currentUrl = request.getRequestURL().toString();
-        model.addAttribute("currentPollUrl", currentUrl); // Yeni atribut əlavə edildi
+        model.addAttribute("currentPollUrl", currentUrl);
+
+        // --- Tövsiyələr hissəsi ---
+        if (!films.isEmpty()) {
+            Film topFilm = films.stream()
+                    .max(Comparator.comparingInt(Film::getVotes))
+                    .orElse(null);
+
+            if (topFilm != null && topFilm.getGenre() != null) {
+                List<Film> allFilmsOfSameGenre = filmRepository.findByGenre(topFilm.getGenre());
+
+                List<Film> recommendedFilms = allFilmsOfSameGenre.stream()
+                        .filter(rec -> rec.getPoll() != null && !rec.getPoll().getUniqueLink().equals(uniqueLink))
+                        .collect(Collectors.toList());
+
+                Collections.shuffle(recommendedFilms);
+                model.addAttribute("recommendedFilms", recommendedFilms.stream().limit(5).collect(Collectors.toList()));
+            }
+        }
+        // --- Tövsiyələr hissəsi Bitdi ---
 
         return "poll";
     }
@@ -125,7 +174,7 @@ public class PollViewController {
     public String showResult(@PathVariable String uniqueLink, Model model) {
         Optional<Poll> pollOpt = pollRepository.findByUniqueLink(uniqueLink);
         if (pollOpt.isEmpty()) {
-            return "redirect:/polls/create";
+            return "redirect:/polls/"; // Tapılmazsa əsas səhifəyə yönləndiririk
         }
         Poll poll = pollOpt.get();
         model.addAttribute("poll", poll);
@@ -138,4 +187,31 @@ public class PollViewController {
 
         return "result";
     }
+
+    // --- Film Tövsiyələri Səhifəsi ---
+    /**
+     * Janra görə film tövsiyələrini göstərən səhifə.
+     * Məsələn: http://localhost:8282/polls/recommendations?genre=ACTION
+     * @param genre Tövsiyə ediləcək janr (istəyə bağlı, boşdursa bütün janrlardan qarışıq göstərilə bilər)
+     * @param model Görünüşə məlumat ötürmək üçün
+     * @return `recommendations.html` şablonunun adı
+     */
+    @GetMapping("/recommendations")
+    public String showRecommendations(@RequestParam(required = false) Genre genre, Model model) {
+        List<Film> films;
+        if (genre != null) {
+            films = filmRepository.findByGenre(genre);
+            model.addAttribute("selectedGenre", genre); // Seçilmiş janrı modelə əlavə edirik
+        } else {
+            // Əgər janr seçilməyibsə, bütün janrlardan filmləri götürüb qarışdırırıq
+            films = filmRepository.findAll();
+        }
+
+        Collections.shuffle(films); // Filmləri qarışdırırıq
+        model.addAttribute("recommendedFilms", films.stream().limit(20).collect(Collectors.toList())); // İlk 20-ni göstəririk
+        model.addAttribute("genres", Genre.values()); // Bütün janrları dropdown üçün əlavə edirik
+
+        return "recommendations";
+    }
+
 }

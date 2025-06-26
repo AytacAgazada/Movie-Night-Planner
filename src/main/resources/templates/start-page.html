@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Film Planner!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Purple gradient background */
+            overflow: hidden; /* Hide scrollbar during welcome animation */
+            min-height: 100vh; /* Ensure full viewport height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative; /* For z-index context */
+        }
+
+        /* Welcome Screen Animation */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Match body background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            opacity: 1;
+            transition: opacity 0.6s ease-out; /* Faster fade-out */
+            z-index: 1000; /* Ensure it's on top */
+        }
+
+        .welcome-screen.fade-out {
+            opacity: 0;
+            pointer-events: none; /* Make it unclickable after fading out */
+        }
+
+        /* Main Content Animation */
+        .main-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-in, transform 0.5s ease-in;
+            transition-delay: 0.7s; /* Delay for content to appear after welcome fades */
+            z-index: 10; /* Ensure content is above welcome screen when shown */
+        }
+
+        .main-content.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: white;
+            border-radius: 1.25rem; /* Rounded corners */
+            padding: 2rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Soft shadow */
+            transition: all 0.3s ease-in-out; /* Smooth transitions */
+            text-align: center;
+            display: flex; /* Flexbox for internal alignment */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 180px; /* Ensure cards have some height */
+        }
+
+        .card:hover {
+            transform: scale(1.05); /* Slight scale on hover */
+        }
+
+        .card h2 {
+            font-size: 1.75rem; /* Adjust heading size for cards */
+            font-weight: 600;
+            color: #2D3748; /* Dark text for readability on white background */
+            margin-bottom: 0.75rem;
+            line-height: 1.2;
+        }
+
+        .card .emoji-lg {
+            font-size: 3rem; /* Larger emoji for emphasis */
+            display: block;
+        }
+
+        /* Global text styles for the main content after animation */
+        .main-content h1 {
+            font-size: 4rem; /* Even larger main heading */
+            font-weight: 800; /* Extra bold */
+            color: white;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .main-content p {
+            font-size: 1.5rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .main-content h1 {
+                font-size: 3rem; /* Smaller heading on mobile */
+            }
+            .main-content p {
+                font-size: 1.25rem;
+            }
+            .card {
+                min-height: 160px; /* Adjust card height for smaller screens */
+                padding: 1.5rem;
+            }
+            .card h2 {
+                font-size: 1.5rem;
+            }
+            .card .emoji-lg {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen px-4">
+
+<!-- Welcome animation (First shown, then fades out) -->
+<div class="welcome-screen" id="welcomeScreen">
+    <span class="animate-bounce">Welcome to Film Planner! 🎉</span>
+</div>
+
+<!-- Main content (Initially hidden, then fades in) -->
+<div id="mainContent" class="main-content w-full max-w-4xl mx-auto">
+    <h1 class="text-center">Welcome to Film Planner! 🎉</h1>
+    <p class="text-center">Choose your adventure:</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <a th:href="@{/polls/new}" class="card">
+            <h2 class="font-semibold text-gray-800">Create a New Poll</h2>
+            <span class="emoji-lg">✨</span>
+        </a>
+        <a th:href="@{/polls/recommendations}" class="card">
+            <h2 class="font-semibold text-gray-800">View Film Recommendations by Genre</h2>
+            <span class="emoji-lg">🎬</span>
+        </a>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('load', () => {
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const mainContent = document.getElementById('mainContent');
+
+        setTimeout(() => {
+            welcomeScreen.classList.add('fade-out');
+        }, 1000); // Fades out after 1 second
+
+        setTimeout(() => {
+            mainContent.classList.add('show');
+            document.body.style.overflow = 'auto'; // Allow scrolling after content is visible
+        }, 1500); // Main content appears 0.5 seconds after welcome screen starts fading
+    });
+</script>
+
+</body>
+</html>

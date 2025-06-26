@@ -37,7 +37,7 @@
             opacity: 0;
             transform: translateY(20px);
             transition: opacity 0.7s ease-in, transform 0.7s ease-in;
-            transition-delay: 1s; /* Delay for form to appear after welcome */
+            transition-delay: 0.5s; /* Slightly reduced delay for direct access */
         }
         .form-container.show {
             opacity: 1;
@@ -47,11 +47,9 @@
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
-<div class="welcome-screen" id="welcomeScreen">
-    <span class="animate-bounce">Welcome! 👋 Let's Create!</span>
-</div>
+<!-- Removed initial "Welcome!" animation for this page, as it's not the entry point anymore -->
 
-<div id="formContainer" class="bg-white p-10 rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-[1.02] form-container">
+<div id="formContainer" class="bg-white p-10 rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-[1.02] form-container show">
     <h1 class="text-4xl font-extrabold text-gray-900 mb-8 text-center">Create a New Poll ✨</h1>
 
     <form th:action="@{/polls/create}" th:object="${pollRequest}" method="post" class="space-y-6">
@@ -72,19 +70,12 @@
     </form>
 </div>
 
+<!-- Simplified script for direct page load -->
 <script>
-    window.addEventListener('load', () => {
-        const welcomeScreen = document.getElementById('welcomeScreen');
+    // Just ensure the form shows up directly if accessed via /polls/new
+    document.addEventListener('DOMContentLoaded', () => {
         const formContainer = document.getElementById('formContainer');
-
-        setTimeout(() => {
-            welcomeScreen.classList.add('fade-out');
-            document.body.style.overflow = 'auto'; /* Allow scrolling after animation */
-        }, 1500); // Display welcome for 1.5 seconds
-
-        setTimeout(() => {
-            formContainer.classList.add('show');
-        }, 2000); // Show form after 2 seconds (0.5s after fade-out starts)
+        formContainer.classList.add('show');
     });
 </script>
 </body>
