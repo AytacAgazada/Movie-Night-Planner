@@ -19,7 +19,6 @@ public class VoteWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        // Optional: Handle incoming messages if needed
     }
 
     @Override
