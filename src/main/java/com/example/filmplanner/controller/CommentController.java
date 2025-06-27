@@ -9,6 +9,10 @@
 //
 //import java.util.List;
 //
+//import org.springframework.web.bind.annotation.RestController;
+//
+//@RestController
+//
 //@RequestMapping("/api/comments")
 //public class CommentController {
 //

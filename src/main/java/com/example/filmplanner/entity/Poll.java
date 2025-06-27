@@ -26,7 +26,7 @@ public class Poll {
     private String title;
 
     @Column(nullable = false, unique = true, updatable = false)
-    private String uniqueLink; // Məsələn UUID kimi
+    private String uniqueLink;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
