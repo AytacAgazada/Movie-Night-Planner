@@ -5,65 +5,76 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Film Recommendations by Genre 🎬</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f8fafc;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); /* Lighter, subtle blue background */
+      min-height: 100vh;
     }
     .film-card {
       background-color: white;
-      border-radius: 0.75rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: all 0.2s ease-in-out;
+      border-radius: 1.25rem; /* More rounded */
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Softer shadow */
+      transition: all 0.3s ease-in-out;
+      border: 1px solid #e2e8f0; /* Subtle border */
     }
     .film-card:hover {
-      transform: translateY(-5px) scale(1.02);
-      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+      transform: translateY(-8px) scale(1.03); /* Lift and scale more */
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+      border-color: #93c5fd; /* Light blue border on hover */
+    }
+    .genre-badge {
+      background-color: #e0f2fe; /* Lighter blue badge */
+      color: #2563eb; /* Darker blue text */
+      font-weight: 600; /* Semibold */
+    }
+    .vote-count {
+      color: #10b981; /* Green for votes */
+      font-size: 1.125rem; /* Slightly larger votes */
     }
   </style>
 </head>
-<body class="flex flex-col items-center min-h-screen py-10 px-4">
+<body class="flex flex-col items-center min-h-screen py-12 px-4">
 
-<div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-4xl">
+<div class="bg-white p-10 rounded-3xl shadow-3xl w-full max-w-5xl">
 
-  <h1 class="text-4xl font-extrabold text-gray-900 mb-8 text-center">Film Recommendations by Genre 🎬</h1>
+  <h1 class="text-5xl font-extrabold text-gray-900 mb-10 text-center">Film Recommendations by Genre 🎬</h1>
 
-  <div class="mb-8 text-center">
-    <form th:action="@{/polls/recommendations}" method="get" class="flex flex-col sm:flex-row justify-center items-center gap-4">
-      <label for="genre-select" class="text-lg font-medium text-gray-700">Filter by Genre:</label>
+  <div class="mb-10 text-center">
+    <form th:action="@{/polls/recommendations}" method="get" class="flex flex-col sm:flex-row justify-center items-center gap-6">
+      <label for="genre-select" class="text-xl font-medium text-gray-700">Filter by Genre:</label>
       <select id="genre-select" name="genre" onchange="this.form.submit()"
-              class="block w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+              class="block w-full sm:w-auto px-5 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-lg bg-white">
         <option value="">All Genres</option>
         <option th:each="g : ${genres}"
                 th:value="${g}"
                 th:text="${g}"
                 th:selected="${selectedGenre != null and selectedGenre.name() == g.name()}">Genre</option>
       </select>
-      <!-- Button is optional, as onchange will submit the form -->
-      <button type="submit" class="px-6 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-200 ease-in-out sm:w-auto">
-        Show Recommendations
+      <button type="submit" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-3 focus:ring-offset-2 focus:ring-purple-500 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 text-lg sm:w-auto">
+        Show Recommendations ✨
       </button>
     </form>
   </div>
 
-  <div th:if="${#lists.isEmpty(recommendedFilms)}" class="text-center text-gray-600 text-lg py-8">
+  <div th:if="${#lists.isEmpty(recommendedFilms)}" class="text-center text-gray-600 text-2xl py-12 italic bg-gray-50 rounded-xl border border-gray-200">
     No recommendations found for this genre. Try another one! 🤔
   </div>
 
-  <div th:unless="${#lists.isEmpty(recommendedFilms)}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div th:each="film : ${recommendedFilms}" class="film-card p-4">
-      <h3 class="text-xl font-bold text-gray-800 mb-2" th:text="${film.title}">Film Title</h3>
-      <span class="px-3 py-1 bg-blue-200 text-blue-800 text-xs font-medium rounded-full" th:text="${film.genre}">Genre</span>
-      <p class="text-gray-600 text-sm mt-3">Votes: <span class="font-semibold" th:text="${film.votes}">0</span></p>
-      <p th:if="${film.poll != null}" class="text-gray-500 text-xs mt-1">From Poll: <a th:href="@{|/polls/${film.poll.uniqueLink}|}" class="text-purple-600 hover:underline" th:text="${film.poll.title}">Poll Name</a></p>
-      <p th:unless="${film.poll != null}" class="text-gray-500 text-xs mt-1">No associated poll.</p>
+  <div th:unless="${#lists.isEmpty(recommendedFilms)}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div th:each="film : ${recommendedFilms}" class="film-card p-6">
+      <h3 class="text-2xl font-bold text-gray-800 mb-3" th:text="${film.title}">Film Title</h3>
+      <span class="px-4 py-1.5 genre-badge text-sm rounded-full" th:text="${film.genre}">Genre</span>
+      <p class="text-gray-600 text-base mt-4">Votes: <span class="font-bold vote-count" th:text="${film.votes}">0</span></p>
+      <p th:if="${film.poll != null}" class="text-gray-500 text-xs mt-2">From Poll: <a th:href="@{|/polls/${film.poll.uniqueLink}|}" class="text-purple-600 hover:underline font-medium" th:text="${film.poll.title}">Poll Name</a></p>
+      <p th:unless="${film.poll != null}" class="text-gray-500 text-xs mt-2">No associated poll.</p>
     </div>
   </div>
 
-  <div class="text-center mt-10">
+  <div class="text-center mt-12">
     <a th:href="@{/polls/}"
-       class="inline-block px-8 py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 shadow-lg transition duration-200 ease-in-out transform hover:scale-105">
+       class="inline-block px-10 py-4 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-3 focus:ring-offset-2 focus:ring-gray-500 shadow-lg transition duration-300 ease-in-out transform hover:scale-105 active:scale-95 text-lg">
       Back to Home ↩️
     </a>
   </div>
